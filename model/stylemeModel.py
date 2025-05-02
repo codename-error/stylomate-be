@@ -3,5 +3,5 @@ from pydantic import BaseModel
 
 class StyleMeRequest(BaseModel):
     id: int
-    kondisi: str
+    cari: str
     activity: str

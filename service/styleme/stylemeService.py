@@ -25,7 +25,7 @@ class StyleMeService:
     async def generateRekomendasi(self, id : Optional[int], cari: str,  activity: str,current_user: TokenData):
         try:     
             uid = current_user.uid
-            print("masuk sini ")
+
             # Ambil data pakaian dari wardrobe
             data_rekomendasi = await self.wardrobeRepository.get_clothes_whitout_image(uid)
             # Kelompokkan berdasarkan kategori
@@ -39,65 +39,77 @@ class StyleMeService:
             # ambil waktu sekarang
             waktu_sekarang = datetime.now()
 
-            print("waktu sekarang", waktu_sekarang)
             # get preference user
             preference = await self.userRepository.get_preference(uid)
-            print("preference", preference)
             if not preference:
                 return {"message": "Wardrobe is empty"}
             
             if cari != "None":
-                if cari == "Top":
-                    kondisi = "Bottom"
-                    data = bottom_clothes
-                elif cari == "Bottom":
-                    kondisi = "Top"
-                    data = top_clothes
 
 
                 data_baju_user = await self.wardrobeRepository.get_clothes_witout_image(uid, id)
                 if not data_baju_user:
                     return {"message": "Wardrobe is empty"}
+                
+                if cari == "Top":
+                    promt = f"""rekomendasi baju
+                    You are an AI fashion stylist. Given a bottom item and a list of available top items (with unique IDs), recommend the most suitable top by returning only the ID of the best-matching item.
+                    Input Format:
+                    Bottom item:
+                    {data_baju_user}
+                    Available tops:
+                    [
+                    {top_clothes}
+                    // Add more tops with unique IDs
+                    ]
+                    User Preferences:
+                    {preference}
+                    Context:
+                    {waktu_sekarang}
+                    Output Format (only valid JSON, no markdown):
+                    
+                    "recommended_top_id": "1" 
+                    
+                    make sure to use id in data_baju_user and id is in number not string
+                    pastikan {data_baju_user} tidak sama dengan {top_clothes}
+                    pastikan bahwa cocok jika dikombinasikan, jadi makesure bahwa yang direkomendasikan itu benar22cocok sekali
+                    
+                    Guidelines:
+                    - Choose the best-matching top based on type, color, pattern, and length harmony with the bottom.
+                    - Prioritize alignment with style_preference (must reflect the user’s fashion style).
+                    - Consider the occasion and color preference as secondary factors.
+                    - Do not include explanation—only return the ID.
+                    - Output must be valid JSON with double quotes."""
+                elif cari == "Bottom":
+                    promt = f"""You are an AI fashion stylist. Given a top item and a list of available bottom items (with unique IDs), recommend the most suitable bottom by returning only the ID of the best-matching item.
+                    Input Format:
+                    Top item:
+                    {data_baju_user}
+                    Available bottoms:
+                    [
+                    {bottom_clothes}
+                    // Add more bottoms with unique IDs
+                    ]
+                    User Preferences: 
+                    {preference}
+                    Context:
+                    {waktu_sekarang}
+                    Activity: {activity}
 
-                print("data baju user", data_baju_user)
-            
-            
-                promt  = f"""You are an AI fashion stylist. Given a {kondisi} item and a list of available {kondisi} items (with unique IDs), recommend the most suitable {kondisi} by returning only the ID of the best-matching item.
-                Input Format:
-                {kondisi} item:
-                {data_baju_user}
-                {cari} items:
-                {data}
-                // Add more bottoms with unique IDs
-                ]
-                User Preferences: 
-                {preference}
-                Context:
-                {
-                waktu_sekarang,
-                activity
-                }
+                    Output Format (only valid JSON, no markdown):
+                    
+                    "recommended_bottom_id": "1"
+                    make sure to use id in data_baju_user and id is in number not string
+                    pastikan {data_baju_user} tidak sama dengan {bottom_clothes}
+                    pastikan bahwa cocok jika dikombinasikan, jadi makesure bahwa yang direkomendasikan itu benar22cocok sekali
 
-                Output Format (only valid JSON, no markdown):
-
-                recommendation:
-
-                "id": "{kondisi} id IN NUMBER NOT STRING",
-
-                INTEGER NOT STRING
-
-                note:
-
-                dont use id in data_baju_user
-
-
-                Guidelines:
-                - Choose the best-matching bottom based on type, color, pattern, and length harmony with the top. 
-                - Alignment with style_preference (highest priority — must reflect the user’s fashion style)
-                - Consider the occasion and color preference as secondary factors.
-                - Do not include explanation—only return the ID.
-                - Use only the id field from the matching item as output.
-                - Output must be valid JSON with double quotes."""
+                    Guidelines:
+                    - Choose the best-matching bottom based on type, color, pattern, and length harmony with the top. 
+                    - Alignment with style_preference (highest priority — must reflect the user’s fashion style)
+                    - Consider the occasion and color preference as secondary factors.
+                    - Do not include explanation—only return the ID.
+                    - Use only the id field from the matching item as output.
+                    - Output must be valid JSON with double quotes."""
             
 
             # recomendation using vertex ai
@@ -129,7 +141,10 @@ class StyleMeService:
                 "bottom_id": "2"
 
                 make sure to use id in data_baju_user and id is in number not string
-            
+                pastikan  tidak sama dengan {top_clothes} dan {bottom_clothes}
+                dan berikan rekomendasi baju dan celana jangan salah satu
+                pastikan bahwa cocok jika dikombinasikan, jadi makesure bahwa yang direkomendasikan itu benar22cocok sekali
+                
                 Guidelines:
                 - Evaluate all possible top-bottom pairings.
                 - Prioritize alignment with style_preference (must match user’s style).
@@ -150,17 +165,40 @@ class StyleMeService:
             cleaned = response.content.replace("```json\n", "").replace("\n```", "")
 
             data = json.loads(cleaned)
+
             print("data", data)
+            result = {}
 
-            # hasil_rekomendasi = await self.wardrobeRepository.get_clothes_by_id(uid, id)
-            # if not hasil_rekomendasi:
-            #     return {"message": "Wardrobe is empty"}
+            if cari == "Top":
+                recommendation = data.get("recommended_top_id")
+                if recommendation:
+                    top_item = await self.wardrobeRepository.get_clothes_by_id(uid, recommendation)
+                    if top_item:
+                        result["top"] = top_item
+            elif cari == "Bottom":
+                recommendation = data.get("recommended_bottom_id")
+                if recommendation:
+                    bottom_item = await self.wardrobeRepository.get_clothes_by_id(uid, recommendation)
+                    if bottom_item:
+                        result["bottom"] = bottom_item
+            else:
+                recommendation = data.get("recommended_combination")
+                print(recommendation)
+                if recommendation:
+                    top_item = await self.wardrobeRepository.get_clothes_by_id(uid, recommendation.get("top_id"))
+                    if top_item:
+                        result["top"] = top_item
 
-            # return {
-            #     "message": "success",
-            #     "data": hasil_rekomendasi
-            # }
-            return True
+                    bottom_item = await self.wardrobeRepository.get_clothes_by_id(uid, recommendation.get("bottom_id"))
+                    if bottom_item:
+                        result["bottom"] = bottom_item
+            if not result:
+                return {"message": "Wardrobe is empty"}
+
+            return {
+                "message": "success",
+                "data": result
+            }
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Failed to generate rekomendasi {str(e)}")
         

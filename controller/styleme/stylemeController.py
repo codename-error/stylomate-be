@@ -12,7 +12,7 @@ class StyleMeController:
 
     async def generateRekomendasi(self, request: StyleMeRequest, current_user: TokenData):
         try:
-            rekomendasi = await self.styleMeService.generateRekomendasi(request.id, request.kondisi, request.activity, current_user)
+            rekomendasi = await self.styleMeService.generateRekomendasi(request.id, request.cari, request.activity, current_user)
             return {
                 "status": "success",
                 "data": rekomendasi
