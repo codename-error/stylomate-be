@@ -80,3 +80,29 @@ class UserRepository:
         except Exception as e:
             print(f"Error getting user data: {e}")
             return False
+        
+    async def update_coint(self, uid: str):
+        try:
+            # get user data form firestore
+            user_data_ref = self.db.document(uid)
+            
+            user_data = user_data_ref.get()
+            if not user_data.exists:
+                print("user not exist")
+
+
+            current_coint = user_data.to_dict().get("coint", 0)
+
+            # kurangi koint sebesar 5 point
+            update_coint = current_coint - 5
+            if update_coint < 0:
+                print("user not enough coint")
+                return False
+            
+            user_data_ref.update({"coint": update_coint})
+
+            return True
+        
+        except Exception as e:
+            print("error updating coint for user")
+            return False

@@ -7,6 +7,7 @@ class UserModel(BaseModel):
     username: str
     email: str
     password: str
+    coint: int
     profile_picture: Optional[str] = None
     preference: Optional[list[str]] = None
     image_model: Optional[str] = None

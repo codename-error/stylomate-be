@@ -33,3 +33,7 @@ class CategoryRequestModel(BaseModel):
 
 class RandomRequestModel(BaseModel):
     cari: Optional[str] = None
+
+class UploadRequestModel(BaseModel):
+    file: str
+    type: str

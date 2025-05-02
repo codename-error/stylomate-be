@@ -1,16 +1,10 @@
 from fastapi import APIRouter, Depends, Form, UploadFile
-
-
-
-
-
-
 from controller.auth.authController import AuthController
 from controller.styleme.stylemeController import StyleMeController
 from controller.user.userController import UserController
 from controller.virtualtryon.virtaltryonController import VirtualTryOnController
 from controller.wardrobe.wardrobeController import WardrobeController
-from model.clothesModel import CategoryRequestModel, ClothesRequestModel, RandomRequestModel, UpdateClothesModel
+from model.clothesModel import CategoryRequestModel, ClothesRequestModel, RandomRequestModel, UpdateClothesModel, UploadRequestModel
 from model.stylemeModel import StyleMeRequest
 from model.userModel import UserLoginModel, UserRegisterModel, UserUpdateModel
 from repository.user.userRepository import UserRepository
@@ -59,8 +53,8 @@ async def getWardrobeId(current_user: TokenData = Depends(get_current_user), war
     return await wardrobeController.getClothesId(current_user)
 
 @router.post("/wardrobe/create")
-async def createClothes(file: UploadFile, type: str = Form(...), current_user: TokenData = Depends(get_current_user), wardrobeController: WardrobeController = Depends()):
-    return await wardrobeController.createClotes(file, type, current_user)
+async def createClothes(request : UploadRequestModel, current_user: TokenData = Depends(get_current_user), wardrobeController: WardrobeController = Depends()):
+    return await wardrobeController.createClotes(request, current_user)
 
 @router.put("/wardrobe/{id}")
 async def updateClothes(id: int ,request: UpdateClothesModel, current_user: TokenData = Depends(get_current_user), wardrobeController: WardrobeController = Depends()):
@@ -95,9 +89,10 @@ async def getClothesById(id: int, current_user: TokenData = Depends(get_current_
 @router.get("/url")
 async def scraping_image(
     url: str = Form(...), 
+    current_user: TokenData = Depends(get_current_user),
     virtualTryOnController: VirtualTryOnController = Depends()):
     
-    return await virtualTryOnController.scraping_image(url)
+    return await virtualTryOnController.scraping_image(current_user, url)
 
 
 

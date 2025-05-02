@@ -79,7 +79,7 @@ def scrape_dynamic(url):
             # Take the largest image or top few large images
             # You can adjust this threshold as needed
             max_images = 3
-            large_images = [img['src'] for img in images[:max_images] if img['area'] > 50000]  # 50000 = ~224x224
+            large_images = [img['src'] for img in images[:max_images] if img['area'] > 50000]
             
             # If no images meet the threshold, take the largest one anyway
             if not large_images and images:
@@ -91,11 +91,3 @@ def scrape_dynamic(url):
 
     except Exception as e:
         return {'error': str(e)}
-
-# Contoh penggunaan
-if __name__ == "__main__":
-    url = "https://www.instagram.com/p/DIWPniWPhkZ/?igsh=MTA3dTE4MG0yODJ2MQ=="  # Ganti dengan URL postingan Instagram
-    result = scrape_dynamic(url)  # Gunakan scrape_dynamic untuk Instagram
-    print("Images:", result.get('images', []))
-    if 'error' in result:
-        print("Error:", result['error'])

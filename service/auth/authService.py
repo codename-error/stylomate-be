@@ -63,6 +63,7 @@ class AuthService:
                 "id": new_id,
                 "email": request.email,
                 "username": request.username,
+                "coint": 50,
                 "password": passEncript,
                 "profile_picture": request.profile_picture or "",
                 "preference": request.preference or [],

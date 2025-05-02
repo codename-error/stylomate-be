@@ -31,7 +31,7 @@ class StyleMeService:
             # Kelompokkan berdasarkan kategori
             top_clothes = [item for item in data_rekomendasi if item.get("category") == "Top"]
             bottom_clothes = [item for item in data_rekomendasi if item.get("category") == "Bottom"]
-                
+            
 
             if not data_rekomendasi:
                 return {"message": "Wardrobe is empty"}
@@ -194,6 +194,9 @@ class StyleMeService:
                         result["bottom"] = bottom_item
             if not result:
                 return {"message": "Wardrobe is empty"}
+            
+            # mengurangi point user karena menggunakan feature berbayar
+            self.userRepository.update_coint(uid)
 
             return {
                 "message": "success",

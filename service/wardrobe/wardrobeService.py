@@ -4,7 +4,7 @@ import os
 from fastapi import Depends, HTTPException, UploadFile
 from config.AzureConfig import  setup_gemini_chat
 from config.azureCon import setup_openai_chat
-from model.clothesModel import ClothesModel, ClothesRequestModel, UpdateClothesModel
+from model.clothesModel import ClothesModel, ClothesRequestModel, UpdateClothesModel, UploadRequestModel
 from repository.wardrobe.wardrobeRepository import WardrobeRepository
 from utils.generate_id import generateNewID
 from utils.tokenJWT import TokenData
@@ -30,16 +30,19 @@ class WadrobeService:
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Failed get wardrobe {str(e)}")
         
-    async def createClotes(self,file : UploadFile, type: str,curent_user: TokenData):
+    async def createClotes(self, request: UploadRequestModel,curent_user: TokenData):
         try:
             uid = curent_user.uid    
+            file = request.file
 
             logging.info(f"content-type: {file.content_type}") 
+
+            image_data = base64.b64decode(file)
+            # Open image using PIL
+            input_image = Image.open(BytesIO(image_data)).convert("RGBA")
            
-            output_path = './output.png'
-            input = Image.open(file.file).convert("RGBA")
-            output = remove(input)
-            output.save(output_path)
+  
+            output = remove(input_image)
 
             if output.mode != "RGBA":
                 print("image not RGBA")
@@ -54,6 +57,8 @@ class WadrobeService:
             buffered.seek(0)
 
             image_data = buffered.getvalue()
+
+            img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
             # ini adalah promt ke vertex ai
             promt = """**Analyze this clothing item image and provide detailed attributes in EXACTLY this JSON format:**
@@ -89,7 +94,7 @@ class WadrobeService:
 
     
             # Single message
-            img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+            # img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
             image_content = {"type": "image_url", "image_url": f"data:image/jpeg;base64,{img_str}"}
 
             message = HumanMessage(

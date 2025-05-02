@@ -1,51 +1,25 @@
-async def createClotes(self,file : UploadFile, type: str,curent_user: TokenData):
-        try:
-            uid = curent_user.uid    
+import requests
 
-            logging.info(f"content-type: {file.content_type}") 
-           
-            output_path = './output.png'
-            input = Image.open(file.file).convert("RGBA")
-            output = remove(input)
-            output.save(output_path)
+def download_image(url, save_path):
+    try:
+        # Kirim permintaan GET ke URL
+        response = requests.get(url, stream=True)
+        response.raise_for_status()  # Periksa apakah permintaan berhasil
 
-            if output.mode != "RGBA":
-                print("image not RGBA")
-                output.convert("RGBA")
-            
-            new_id = generateNewID(uid)
-            
-            # menggunakan penyimpanan sementara
-            buffered = BytesIO()
-            output.save(buffered, format="PNG")
-            # reset ke pointer 0
-            buffered.seek(0)
+        # Simpan gambar ke file
+        with open(save_path, 'wb') as file:
+            for chunk in response.iter_content(1024):
+                file.write(chunk)
 
-            image_data = buffered.getvalue()
+        print(f"Gambar berhasil diunduh dan disimpan di: {save_path}")
+    except requests.exceptions.RequestException as e:
+        print(f"Terjadi kesalahan saat mengunduh gambar: {e}")
 
-            # ini adalah promt ke vertex ai
-            if type == "top":
-                promt =  os.getenv("PROMT_ATASAN")
-            elif type == "bottom":
-                promt = os.getenv("PROMT_BAWAHAN")
-    
-            # Single message
-            img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+# URL gambar Instagram
+image_url = "https://instagram.fbdo10-1.fna.fbcdn.net/v/t51.2885-15/489829982_18455282062075593_971224471189671111_n.jpg?stp=dst-jpg_e15_fr_p1080x1080_tt6&_nc_ht=instagram.fbdo10-1.fna.fbcdn.net&_nc_cat=109&_nc_oc=Q6cZ2QERYcz2PCWQhtclpmfCKksv_gi2r2z1gIiX1Z1o1lG-xtgZicR2_jkGkWbyHv4n6gc&_nc_ohc=T-GU9DGe8WQQ7kNvwH7v8LF&_nc_gid=gik7nbM_YfL5sS9qEG1BKw&edm=ANTKIIoBAAAA&ccb=7-5&oh=00_AfEcZN1ktPG74y5-ijHqe3UbGUli6Ro8ZBqUwmdFHUTu6g&oe=681AF254&_nc_sid=d885a2"
 
-            response = self.call_gpt(
-                image_base64=img_str,
-                text_prompt=promt
-            )
+# Lokasi penyimpanan file
+save_path = "instagram_image.jpg"
 
-            print(response)
-
-            cleaned = response.replace("```json\n", "").replace("\n```", "")
-
-
-            print(cleaned)
-
-
-            # return await self.wardrobeRepository.add_clothes(uid, new_id, type, data["color"], data["sleeve_length"], data["neckline"], data["pattern"], img_str)
-
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Failed To Add Clotest To wardrobe {str(e)}")
+# Unduh gambar
+download_image(image_url, save_path)

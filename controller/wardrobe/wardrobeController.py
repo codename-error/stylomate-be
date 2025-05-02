@@ -1,6 +1,6 @@
 from fastapi import Depends, UploadFile
 from fastapi.responses import JSONResponse
-from model.clothesModel import ClothesRequestModel, UpdateClothesModel
+from model.clothesModel import ClothesRequestModel, UpdateClothesModel, UploadRequestModel
 from service.wardrobe.wardrobeService import WadrobeService
 from utils.tokenJWT import TokenData
 
@@ -9,9 +9,9 @@ class WardrobeController:
     def __init__(self, wardrobeService: WadrobeService = Depends()):
         self.wardrobeService = wardrobeService
 
-    async def createClotes(self, file: UploadFile, type: str,curent_user: TokenData):
+    async def createClotes(self, request: UploadRequestModel,curent_user: TokenData):
         try:
-            data_clothes = await self.wardrobeService.createClotes(file, type, curent_user)
+            data_clothes = await self.wardrobeService.createClotes(request, curent_user)
             
             return JSONResponse(status_code=201, content={
                 "message": "Succesfuly Created New Clothes",

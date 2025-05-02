@@ -11,7 +11,7 @@ class AuthController:
 
     async def loginEmailPassword(self, request: UserLoginModel):
         try:
-
+            
             print("sebeleum memanggil login service")
             user_data = await self.authService.loginEmailPassword(request)
             

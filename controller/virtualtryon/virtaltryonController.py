@@ -9,10 +9,12 @@ class VirtualTryOnController:
     def __init__(self, virtualTryOnService: VirtualTryOnService = Depends()):
         self.virtualTryOnService = virtualTryOnService
 
-    async def scraping_image(self, url: str):
+    async def scraping_image(self, current_user: TokenData,url: str):
         try:
             # scraping image
-            data = await self.virtualTryOnService.scraping_image(url)
+            data = await self.virtualTryOnService.scraping_image(current_user, url)
+            
+            
 
             # disini digunakan untuk promt image yang ada
 
