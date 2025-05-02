@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, Form, UploadFile
-from contorller.auth.authController import AuthController
-from contorller.wardrobe.wardrobeController import WardrobeController
+
+
+from controller.auth.authController import AuthController
+from controller.wardrobe.wardrobeController import WardrobeController
 from model.clothesModel import ClothesRequestModel, UpdateClothesModel
 from model.userModel import UserLoginModel, UserRegisterModel, UserUpdateModel
 from utils.tokenJWT import TokenData, create_acces_token, get_current_user
