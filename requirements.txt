@@ -25,3 +25,6 @@ rembg
 onnxruntime
 vertexai
 langchain-google-vertexai
+langchain_google_genai
+langchain_openai
+langchain

@@ -27,4 +27,9 @@ class ClothesRequestModel(BaseModel):
     pattern: str
     length: str
     image_base64: str
-    
+
+class CategoryRequestModel(BaseModel):
+    category: str
+
+class RandomRequestModel(BaseModel):
+    cari: Optional[str] = None

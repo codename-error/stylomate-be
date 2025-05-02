@@ -44,6 +44,30 @@ class WardrobeRepository:
         except Exception as e:
             print(f"Error adding user: {e}")
             return False
+        
+    # melakukan delete clothes berdasarkan id
+    async def get_clothes_witout_image(self, uid: str, id: int):
+        try:
+            # menambahkan user baru ke dalam collection users
+            get_query = self.db.document(uid).collection("data").where("id", "==", id)
+
+            docs = get_query.stream()
+            clothes_list = []
+            for cloth in docs:
+                cloth_dict = cloth.to_dict()
+
+                if "image_url" in cloth_dict:
+                    del cloth_dict["image_url"]
+                    
+                clothes_list.append(cloth_dict)
+            
+            return clothes_list
+
+
+        # jika terjadi error, tampilkan pesan error
+        except Exception as e:
+            print(f"Error adding user: {e}")
+            return False
     
     # melakukan delete clothes berdasarkan id
     async def delete_clothes(self, uid: str, id: int):
@@ -80,15 +104,34 @@ class WardrobeRepository:
         except Exception as e:
             print(f"Error adding user: {e}")
             return False
-    
-    async def get_clothes_by_type(self, uid: str, type: str):
+        
+    async def get_clothes_whitout_image(self, uid: str):
         try:
-            # mengambil data berdasarkan id
-            clothes = self.db.document(uid).collection("data").where("jenis", "==", type).stream()
-            
-            # mengambil data berdasarkan type
+            # menambahkan user baru ke dalam collection users
+            clothes = self.db.document(uid).collection("data").stream()
             clothes_list = []
             for cloth in clothes:
+                cloth_dict = cloth.to_dict()
+                if "image_url" in cloth_dict:
+                    del cloth_dict["image_url"]
+                clothes_list.append(cloth_dict)
+                
+            return clothes_list
+
+        # jika terjadi error, tampilkan pesan error
+        except Exception as e:
+            print(f"Error adding user: {e}")
+            return False
+    
+    async def get_clothes_by_category(self, uid: str, category : str):
+        try:
+
+            # menambahkan user baru ke dalam collection users
+            get_query = self.db.document(uid).collection("data").where("category", "==", category)
+
+            docs = get_query.stream()
+            clothes_list = []
+            for cloth in docs:
                 clothes_list.append(cloth.to_dict())
             return clothes_list
 

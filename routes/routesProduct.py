@@ -1,10 +1,19 @@
 from fastapi import APIRouter, Depends, Form, UploadFile
 
 
+
+
+
+
 from controller.auth.authController import AuthController
+from controller.styleme.stylemeController import StyleMeController
+from controller.user.userController import UserController
+from controller.virtualtryon.virtaltryonController import VirtualTryOnController
 from controller.wardrobe.wardrobeController import WardrobeController
-from model.clothesModel import ClothesRequestModel, UpdateClothesModel
+from model.clothesModel import CategoryRequestModel, ClothesRequestModel, RandomRequestModel, UpdateClothesModel
+from model.stylemeModel import StyleMeRequest
 from model.userModel import UserLoginModel, UserRegisterModel, UserUpdateModel
+from repository.user.userRepository import UserRepository
 from utils.tokenJWT import TokenData, create_acces_token, get_current_user
 
 
@@ -29,8 +38,15 @@ async def verifyEmail(email: str, code: int, authController : AuthController = D
     return await authController.verifyEmailUser(email, code)
 
 
+# ------- users ---------
+@router.put("/user/preference")
+async def add_preference(request: UserUpdateModel ,current_user: TokenData = Depends(get_current_user), userController: UserController = Depends()):
+    return await userController.addPreference(current_user, request)
 
-# ------- wardrobe ------- #
+@router.put("/user/image_model")
+async def addImageModel(file: UploadFile ,current_user: TokenData = Depends(get_current_user), userController: UserController = Depends()):
+    return await userController.addImageModel(current_user, file)
+
 
 # --------- wardrobe ---------------
 
@@ -53,3 +69,57 @@ async def updateClothes(id: int ,request: UpdateClothesModel, current_user: Toke
 @router.delete("/wardrobe/{id}")
 async def deleteClothes(id: int, current_user: TokenData = Depends(get_current_user), wardrobeController: WardrobeController = Depends()):
     return await wardrobeController.deleteClothesById(id, current_user)
+
+
+# -------- styleme ---------
+
+@router.post("/recomendation")
+async def generateRekomendasi(request: StyleMeRequest, current_user: TokenData = Depends(get_current_user), styleMeController: StyleMeController = Depends()):
+    return await styleMeController.generateRekomendasi(request, current_user)
+
+@router.get("/styleme/category")
+async def getClothesByCategory(category: CategoryRequestModel, current_user: TokenData = Depends(get_current_user), styleMeController: StyleMeController = Depends()):
+    return await styleMeController.getClothesByCategory(category, current_user)
+
+@router.get("/styleme/random")
+async def generateRandom(cari: RandomRequestModel,current_user: TokenData = Depends(get_current_user), styleMeController: StyleMeController = Depends()):
+    return await styleMeController.generateRandom(current_user, cari)
+
+@router.get("/styleme/{id}")
+async def getClothesById(id: int, current_user: TokenData = Depends(get_current_user), styleMeController: StyleMeController = Depends()):
+    return await styleMeController.getClothesById(id, current_user)
+
+
+
+#  ------- virtual try on ---------
+@router.get("/url")
+async def scraping_image(
+    url: str = Form(...), 
+    virtualTryOnController: VirtualTryOnController = Depends()):
+    
+    return await virtualTryOnController.scraping_image(url)
+
+
+
+
+
+
+
+
+@router.get("/ping")
+async def ping():
+    access_token = create_acces_token(
+                data={"sub": "Nis2yCgGXsZQSmbV73pz7rYpI9E2"}
+            )
+    return {"message": access_token}
+
+@router.get("/pong")
+async def userData(userRepository: UserRepository = Depends(), current_user: TokenData = Depends(get_current_user)):
+
+    uid = current_user.uid
+
+    Data = await userRepository.getUserData(uid)
+    print(Data)
+    if Data is None:
+        return {"message": "User not found"}
+    return {"message": Data}
