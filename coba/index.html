@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wardrobe Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .clothes-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .clothes-image {
+            max-width: 200px;
+            max-height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wardrobe Management</h1>
+    
+    <h2>Add New Clothing Item</h2>
+    <form id="createForm">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" required>
+        </div>
+        <div class="form-group">
+            <label for="size">Size:</label>
+            <input type="text" id="size" required>
+        </div>
+        <div class="form-group">
+            <label for="jenis">Type:</label>
+            <input type="text" id="jenis" required>
+        </div>
+        <div class="form-group">
+            <label for="brand">Brand:</label>
+            <input type="text" id="brand" required>
+        </div>
+        <div class="form-group">
+            <label for="image">Image:</label>
+            <input type="file" id="image" accept="image/*" required>
+        </div>
+        <button type="submit">Add Item</button>
+    </form>
+
+    <h2>Update Clothing Item</h2>
+    <form id="updateForm">
+        <div class="form-group">
+            <label for="updateId">Item ID:</label>
+            <input type="text" id="updateId" required>
+        </div>
+        <div class="form-group">
+            <label for="updateName">Name:</label>
+            <input type="text" id="updateName">
+        </div>
+        <div class="form-group">
+            <label for="updateSize">Size:</label>
+            <input type="text" id="updateSize">
+        </div>
+        <div class="form-group">
+            <label for="updateJenis">Type:</label>
+            <input type="text" id="updateJenis">
+        </div>
+        <div class="form-group">
+            <label for="updateBrand">Brand:</label>
+            <input type="text" id="updateBrand">
+        </div>
+        <div class="form-group">
+            <label for="updateImage">New Image (optional):</label>
+            <input type="file" id="updateImage" accept="image/*">
+        </div>
+        <button type="submit">Update Item</button>
+    </form>
+
+    <h2>My Wardrobe</h2>
+    <button id="loadWardrobe">Load Wardrobe</button>
+    <div id="wardrobeList"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000'; // Adjust to your API URL
+        
+        // Helper function for API calls
+        async function callApi(endpoint, method = 'GET', body = null, isFileUpload = false) {
+            const headers = {};
+            const token = localStorage.getItem('token'); // Assuming you have auth
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            let options = {
+                method,
+                headers
+            };
+            
+            if (body) {
+                if (isFileUpload) {
+                    options.body = body;
+                } else {
+                    headers['Content-Type'] = 'application/json';
+                    options.body = JSON.stringify(body);
+                }
+            }
+            
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+            return await response.json();
+        }
+
+        // Create new clothing item
+        document.getElementById('createForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('file', document.getElementById('image').files[0]);
+            
+            const clothesData = {
+                name: document.getElementById('name').value,
+                size: document.getElementById('size').value,
+                jenis: document.getElementById('jenis').value,
+                brand: document.getElementById('brand').value
+            };
+            formData.append('clothes_data', JSON.stringify(clothesData));
+            
+            try {
+                const result = await callApi('/wardrobe/create', 'POST', formData, true);
+                alert('Item created successfully!');
+                document.getElementById('createForm').reset();
+            } catch (error) {
+                console.error('Error creating item:', error);
+                alert('Failed to create item');
+            }
+        });
+
+        // Update clothing item
+        document.getElementById('updateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const itemId = document.getElementById('updateId').value;
+            const updateData = {};
+            
+            if (document.getElementById('updateName').value) updateData.name = document.getElementById('updateName').value;
+            if (document.getElementById('updateSize').value) updateData.size = document.getElementById('updateSize').value;
+            if (document.getElementById('updateJenis').value) updateData.jenis = document.getElementById('updateJenis').value;
+            if (document.getElementById('updateBrand').value) updateData.brand = document.getElementById('updateBrand').value;
+            
+            try {
+                const result = await callApi(`/wardrobe/update`, 'POST', updateData);
+                alert('Item updated successfully!');
+                document.getElementById('updateForm').reset();
+            } catch (error) {
+                console.error('Error updating item:', error);
+                alert('Failed to update item');
+            }
+        });
+
+        // Load wardrobe
+        document.getElementById('loadWardrobe').addEventListener('click', async () => {
+            try {
+                const wardrobe = await callApi('/wardrobe', 'POST');
+                displayWardrobe(wardrobe);
+            } catch (error) {
+                console.error('Error loading wardrobe:', error);
+                alert('Failed to load wardrobe');
+            }
+        });
+
+        // Display wardrobe items
+        function displayWardrobe(items) {
+            const wardrobeList = document.getElementById('wardrobeList');
+            wardrobeList.innerHTML = '';
+            
+            if (!items || items.length === 0) {
+                wardrobeList.innerHTML = '<p>No items in your wardrobe.</p>';
+                return;
+            }
+            
+            items.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'clothes-item';
+                itemElement.innerHTML = `
+                    <h3>${item.name}</h3>
+                    ${item.image_url ? `<img src="${item.image_url}" class="clothes-image" alt="${item.name}">` : ''}
+                    <p><strong>Type:</strong> ${item.jenis}</p>
+                    <p><strong>Size:</strong> ${item.size}</p>
+                    <p><strong>Brand:</strong> ${item.brand}</p>
+                    <p><strong>ID:</strong> ${item.id}</p>
+                `;
+                wardrobeList.appendChild(itemElement);
+            });
+        }
+
+        // Note: You'll need to implement authentication first
+        // This example assumes you have a token stored in localStorage
+    </script>
+</body>
+</html>
