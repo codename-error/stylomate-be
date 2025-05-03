@@ -6,7 +6,7 @@ from controller.virtualtryon.virtaltryonController import VirtualTryOnController
 from controller.wardrobe.wardrobeController import WardrobeController
 from model.clothesModel import CategoryRequestModel, ClothesRequestModel, RandomRequestModel, UpdateClothesModel, UploadRequestModel
 from model.stylemeModel import StyleMeRequest
-from model.userModel import UserLoginModel, UserRegisterModel, UserUpdateModel
+from model.userModel import AddRequestImageModel, UserLoginModel, UserRegisterModel, UserUpdateModel
 from repository.user.userRepository import UserRepository
 from utils.tokenJWT import TokenData, create_acces_token, get_current_user
 
@@ -38,8 +38,8 @@ async def add_preference(request: UserUpdateModel ,current_user: TokenData = Dep
     return await userController.addPreference(current_user, request)
 
 @router.put("/user/image_model")
-async def addImageModel(file: UploadFile ,current_user: TokenData = Depends(get_current_user), userController: UserController = Depends()):
-    return await userController.addImageModel(current_user, file)
+async def addImageModel(file_base64: AddRequestImageModel,current_user: TokenData = Depends(get_current_user), userController: UserController = Depends()):
+    return await userController.addImageModel(current_user, file_base64)
 
 
 # --------- wardrobe ---------------

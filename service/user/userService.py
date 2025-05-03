@@ -1,7 +1,8 @@
 import base64
 from fastapi import Depends, HTTPException, UploadFile
+from requests import request
 
-from model.userModel import UserUpdateModel
+from model.userModel import AddRequestImageModel, UserUpdateModel
 from repository.user.userRepository import UserRepository
 from utils.tokenJWT import TokenData
 from PIL import Image
@@ -32,15 +33,19 @@ class UserService:
                 detail=f"Error adding preference: {e}"
             )
         
-    async def addImageModel(self, current_user: TokenData, file: UploadFile):
+    async def addImageModel(self, current_user: TokenData, file_base64: AddRequestImageModel):
         try:
             # get uid
             uid = current_user.uid
 
-            output_path = './output.png'
-            input = Image.open(file.file).convert("RGBA")
-            output = remove(input)
-            output.save(output_path)
+            file = request.file
+
+            image_data = base64.b64decode(file)
+            # Open image using PIL
+            input_image = Image.open(BytesIO(image_data)).convert("RGBA")
+           
+  
+            output = remove(input_image)
 
             if output.mode != "RGBA":
                 print("image not RGBA")
@@ -52,11 +57,12 @@ class UserService:
             # reset ke pointer 0
             buffered.seek(0)
 
-            # encode image ke base64
-            base64_string = base64.b64encode(buffered.read()).decode('utf-8')
+            image_data = buffered.getvalue()
+
+            img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
             # add user preference
-            result = await self.userRepository.addImageModel(uid, base64_string)
+            result = await self.userRepository.addImageModel(uid, img_str)
             return {
                 "message": "success add image model",
 

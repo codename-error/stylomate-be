@@ -50,3 +50,6 @@ class UserUpdateModel(BaseModel):
     profile_picture: Optional[str] = None
     preference: Optional[list[str]] = None
     image_model: Optional[str] = None
+
+class AddRequestImageModel(BaseModel):
+    image_base64: str

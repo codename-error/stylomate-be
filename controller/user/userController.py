@@ -1,6 +1,6 @@
 from fastapi import Depends, UploadFile
 from fastapi.responses import JSONResponse
-from model.userModel import UserUpdateModel
+from model.userModel import AddRequestImageModel, UserUpdateModel
 from service.user.userService import UserService
 from utils.tokenJWT import TokenData
 
@@ -31,10 +31,10 @@ class UserController:
                 }
             )
         
-    async def addImageModel(self, current_user: TokenData, file: UploadFile):
+    async def addImageModel(self, current_user: TokenData, file_base64: AddRequestImageModel):
         try:
             # add user preference
-            result = await self.userService.addImageModel(current_user, file)
+            result = await self.userService.addImageModel(current_user, file_base64)
             return JSONResponse(
                 status_code=200, message="success add image model")
 

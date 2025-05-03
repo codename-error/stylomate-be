@@ -35,8 +35,6 @@ class WadrobeService:
             uid = curent_user.uid    
             file = request.file
 
-            logging.info(f"content-type: {file.content_type}") 
-
             image_data = base64.b64decode(file)
             # Open image using PIL
             input_image = Image.open(BytesIO(image_data)).convert("RGBA")
