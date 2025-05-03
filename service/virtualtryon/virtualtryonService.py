@@ -3,7 +3,6 @@ from fastapi import Depends, HTTPException
 from repository.history.historyRepository import HistoryRepository
 from repository.user.userRepository import UserRepository
 from repository.wardrobe.wardrobeRepository import WardrobeRepository
-from utils.scrapingImage import scrape_dynamic
 import requests
 
 from utils.tokenJWT import TokenData
