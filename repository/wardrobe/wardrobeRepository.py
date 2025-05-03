@@ -1,7 +1,7 @@
 from fastapi import Depends
 from google.cloud.firestore import Client
 from config.firebaseConfig import get_firestore
-from model.clothesModel import ClothesModel, UpdateClothesModel
+from model.clothesModel import UpdateClothesModel
 
 
 class WardrobeRepository:

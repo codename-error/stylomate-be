@@ -2,8 +2,6 @@ from fastapi import Depends
 from config.firebaseConfig import get_firestore
 from google.cloud.firestore import Client
 
-from model.userModel import UserUpdateModel
-
 
 class UserRepository:
     def __init__(self, db: Client = Depends(get_firestore)):

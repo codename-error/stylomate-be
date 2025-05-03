@@ -1,12 +1,10 @@
-import json
+
 import bcrypt
 from fastapi import Depends
-from firebase_admin import auth, storage
+from firebase_admin import auth
 from model.userModel import UserLoginModel, UserModel, UserRegisterModel
 from repository.auth.authRepository import AuthRepository
 from fastapi import HTTPException
-import smtplib
-from email.message import EmailMessage
 
 from utils.codeValidation import generateCode, verifyCode
 from utils.generate_id import generateNewID

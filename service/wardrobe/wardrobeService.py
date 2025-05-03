@@ -1,20 +1,14 @@
 import base64
 import json
-import os
-from fastapi import Depends, HTTPException, UploadFile
+from fastapi import Depends, HTTPException
 from config.AzureConfig import  setup_gemini_chat
-from config.azureCon import setup_openai_chat
-from model.clothesModel import ClothesModel, ClothesRequestModel, UpdateClothesModel, UploadRequestModel
+from model.clothesModel import UpdateClothesModel, UploadRequestModel
 from repository.wardrobe.wardrobeRepository import WardrobeRepository
 from utils.generate_id import generateNewID
 from utils.tokenJWT import TokenData
-from firebase_admin import storage
 from PIL import Image
 from rembg import remove
 from io import BytesIO
-import logging
-from google.genai import types
-import re
 from langchain_core.messages import HumanMessage
 
 class WadrobeService:
