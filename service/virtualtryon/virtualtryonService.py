@@ -3,7 +3,6 @@ from fastapi import Depends, HTTPException
 from repository.history.historyRepository import HistoryRepository
 from repository.user.userRepository import UserRepository
 from repository.wardrobe.wardrobeRepository import WardrobeRepository
-from utils.scrapingImage import scrape_dynamic
 import requests
 
 from utils.tokenJWT import TokenData
@@ -19,7 +18,6 @@ class VirtualTryOnService:
         try:
             uid = current_user.uid
             # scraping image
-            data = scrape_dynamic(url)
 
             # response = requests.get(data["images"], stream=True)
             # response.raise_for_status()
@@ -33,9 +31,6 @@ class VirtualTryOnService:
 
             await self.userRepository.update_coint(uid)
             await self.historyRepositroy.save_history(feature, ponit, uid )
-
-
-            return data["images"][0]
             
 
 

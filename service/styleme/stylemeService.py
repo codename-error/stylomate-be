@@ -7,7 +7,6 @@ from typing import Optional
 from fastapi import Depends, HTTPException, UploadFile
 from google.genai import types
 from config.AzureConfig import setup_gemini_chat
-from config.azureCon import setup_openai_chat
 from repository.user.userRepository import UserRepository
 from repository.wardrobe.wardrobeRepository import WardrobeRepository
 
