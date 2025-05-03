@@ -1,4 +1,4 @@
-from fastapi import Depends, UploadFile
+from fastapi import Depends
 from fastapi.responses import JSONResponse
 from model.userModel import AddRequestImageModel, UserUpdateModel
 from service.user.userService import UserService

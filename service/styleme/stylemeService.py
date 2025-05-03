@@ -10,7 +10,7 @@ from config.AzureConfig import setup_gemini_chat
 from config.azureCon import setup_openai_chat
 from repository.user.userRepository import UserRepository
 from repository.wardrobe.wardrobeRepository import WardrobeRepository
-from utils.promtText import styleme
+
 from utils.tokenJWT import TokenData
 from datetime import datetime
 from langchain_core.messages import HumanMessage
@@ -20,7 +20,6 @@ class StyleMeService:
         self.wardrobeRepository = wardrobeRepository
         self.userRepository = userRepository
         self.client_open_ai = client_open_ai
-        self.styleme = styleme
 
     async def generateRekomendasi(self, id : Optional[int], cari: str,  activity: str,current_user: TokenData):
         try:     

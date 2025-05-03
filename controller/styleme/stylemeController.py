@@ -1,4 +1,4 @@
-from typing import Optional
+
 from fastapi import Depends
 from model.clothesModel import CategoryRequestModel, RandomRequestModel
 from model.stylemeModel import StyleMeRequest

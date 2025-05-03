@@ -1,6 +1,6 @@
-from fastapi import Depends, UploadFile
+from fastapi import Depends
 from fastapi.responses import JSONResponse
-from model.clothesModel import ClothesRequestModel, UpdateClothesModel, UploadRequestModel
+from model.clothesModel import UpdateClothesModel, UploadRequestModel
 from service.wardrobe.wardrobeService import WadrobeService
 from utils.tokenJWT import TokenData
 
