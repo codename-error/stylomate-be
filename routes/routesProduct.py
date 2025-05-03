@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Form, UploadFile
 from controller.auth.authController import AuthController
+from controller.history.historyController import HistoryController
 from controller.styleme.stylemeController import StyleMeController
 from controller.user.userController import UserController
 from controller.virtualtryon.virtaltryonController import VirtualTryOnController
@@ -84,7 +85,6 @@ async def getClothesById(id: int, current_user: TokenData = Depends(get_current_
     return await styleMeController.getClothesById(id, current_user)
 
 
-
 #  ------- virtual try on ---------
 @router.get("/url")
 async def scraping_image(
@@ -95,7 +95,9 @@ async def scraping_image(
     return await virtualTryOnController.scraping_image(current_user, url)
 
 
-
+@router.get("/history")
+async def get_hsitory(current_user: TokenData = Depends(get_current_user), historyController: HistoryController = Depends()):
+    return await historyController.send_history(current_user)
 
 
 
