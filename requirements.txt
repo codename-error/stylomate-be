@@ -2,13 +2,7 @@ fastapi
 uvicorn
 google-cloud-firestore
 firebase-admin
-PyPDF2
-gtts
-googletrans==4.0.0-rc1
-pydub
-speechrecognition
 scipy
-soundfile
 bcrypt
 python-jose[cryptography]
 httpx
